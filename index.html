@@ -3,150 +3,178 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amarilla Superintendent Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Amarilla</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .icon { display: inline-block; width: 20px; height: 20px; vertical-align: middle; }
+        body { -webkit-tap-highlight-color: transparent; }
+        .btn-touch { min-height: 56px; font-size: 16px; }
+        .menu-overlay { backdrop-filter: blur(4px); }
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="min-h-screen p-4 md:p-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                <!-- Header -->
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900">Superintendent Dashboard</h1>
-                        <p class="text-gray-600 mt-1">Residencia Martinez - Self-Perform Time & Task Management</p>
-                    </div>
-                    <div class="text-sm text-gray-700">
-                        <span class="font-medium">User:</span> <span id="currentUser">Roberto Sanchez (Superintendent)</span>
-                    </div>
-                </div>
+    <!-- Top Bar -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="flex items-center justify-between px-4 py-3">
+            <button onclick="toggleMenu()" class="text-2xl">☰</button>
+            <div class="text-center flex-1">
+                <div class="text-xs text-gray-500" id="currentUser">Roberto Sanchez</div>
+                <div class="font-semibold text-gray-900" id="currentProject">Select Project</div>
+            </div>
+            <div class="w-8"></div>
+        </div>
+    </div>
 
-                <!-- View Toggle -->
-                <div class="flex gap-4 mb-6 bg-gray-100 p-1 rounded-lg">
-                    <button onclick="showView('timesheet')" id="btnTimesheet" class="flex-1 py-3 px-4 rounded-lg font-medium transition">
-                        ⏰ Log Crew Time
+    <!-- Menu Overlay -->
+    <div id="menuOverlay" class="fixed inset-0 bg-black bg-opacity-50 menu-overlay hidden z-40" onclick="closeMenu()"></div>
+    
+    <!-- Side Menu -->
+    <div id="sideMenu" class="fixed left-0 top-0 bottom-0 w-72 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 z-50">
+        <div class="p-4 border-b border-gray-200">
+            <div class="font-semibold text-lg">Menu</div>
+            <div class="text-sm text-gray-600">Roberto Sanchez</div>
+        </div>
+        <div class="p-2">
+            <button onclick="showScreen('selectProject')" class="w-full text-left px-4 py-4 hover:bg-gray-50 rounded-lg flex items-center gap-3 btn-touch">
+                <span class="text-xl">🏗️</span>
+                <span class="font-medium">Change Project</span>
+            </button>
+            <button onclick="showScreen('dashboard')" class="w-full text-left px-4 py-4 hover:bg-gray-50 rounded-lg flex items-center gap-3 btn-touch">
+                <span class="text-xl">📊</span>
+                <span class="font-medium">Dashboard</span>
+            </button>
+            <button onclick="showScreen('timesheet')" class="w-full text-left px-4 py-4 hover:bg-gray-50 rounded-lg flex items-center gap-3 btn-touch">
+                <span class="text-xl">⏰</span>
+                <span class="font-medium">Log Crew Time</span>
+            </button>
+            <button onclick="showScreen('tasks')" class="w-full text-left px-4 py-4 hover:bg-gray-50 rounded-lg flex items-center gap-3 btn-touch">
+                <span class="text-xl">⚙️</span>
+                <span class="font-medium">Manage Tasks</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="pb-20">
+        
+        <!-- Project Selection Screen -->
+        <div id="screenSelectProject">
+            <div class="p-4">
+                <h2 class="text-xl font-bold mb-4">Select Project</h2>
+                <div class="space-y-3">
+                    <button onclick="selectProject('Residencia Martinez', 'proj1')" class="w-full bg-white rounded-lg p-4 shadow border-2 border-gray-200 active:border-blue-500 text-left btn-touch">
+                        <div class="font-semibold text-lg">Residencia Martinez</div>
+                        <div class="text-sm text-gray-600">Started Nov 2024 • 6 active tasks</div>
                     </button>
-                    <button onclick="showView('tasks')" id="btnTasks" class="flex-1 py-3 px-4 rounded-lg font-medium transition">
-                        ⚙️ Manage Tasks
+                    <button onclick="selectProject('Villa Santos', 'proj2')" class="w-full bg-white rounded-lg p-4 shadow border-2 border-gray-200 active:border-blue-500 text-left btn-touch">
+                        <div class="font-semibold text-lg">Villa Santos</div>
+                        <div class="text-sm text-gray-600">Started Jan 2025 • 1 active task</div>
+                    </button>
+                    <button onclick="selectProject('Casa Moderna', 'proj3')" class="w-full bg-white rounded-lg p-4 shadow border-2 border-gray-200 active:border-blue-500 text-left btn-touch">
+                        <div class="font-semibold text-lg">Casa Moderna</div>
+                        <div class="text-sm text-gray-600">Started Feb 2025 • 2 active tasks</div>
                     </button>
                 </div>
+            </div>
+        </div>
 
-                <!-- Timesheet View -->
-                <div id="viewTimesheet" class="hidden">
-                    <div class="bg-orange-50 rounded-lg p-6 border-2 border-orange-200">
-                        <div class="flex items-center gap-2 mb-4">
-                            <h2 class="text-lg font-semibold text-orange-900">👥 Crew Time Entry</h2>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" id="selectedDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                        </div>
-
-                        <!-- Step 1: Select Task -->
-                        <div id="stepSelectTask">
-                            <h3 class="font-semibold mb-3">Select Task with Available Hours</h3>
-                            <div id="tasksList"></div>
-                        </div>
-
-                        <!-- Step 2: Select Detail -->
-                        <div id="stepSelectDetail" class="hidden">
-                            <button onclick="backToTaskSelection()" class="text-orange-600 hover:text-orange-800 mb-4 text-sm font-medium">
-                                ← Back to task selection
-                            </button>
-                            <div id="taskContext" class="bg-white rounded-lg p-4 mb-4 border-2 border-orange-300"></div>
-                            <h3 class="font-semibold mb-3">What area/detail did the crew work on?</h3>
-                            <div id="detailsList"></div>
-                        </div>
-
-                        <!-- Step 3: Assign Workers -->
-                        <div id="stepAssignWorkers" class="hidden">
-                            <button onclick="backToPreviousStep()" class="text-orange-600 hover:text-orange-800 mb-4 text-sm font-medium">
-                                ← Back
-                            </button>
-                            <div id="taskContextFull" class="bg-white rounded-lg p-4 mb-4 border-2 border-orange-300"></div>
-                            
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-semibold">Select Workers</h3>
-                                <button onclick="toggleAllWorkers()" class="text-sm text-orange-600 hover:text-orange-800 font-medium">
-                                    Select All
-                                </button>
-                            </div>
-                            
-                            <div id="workersList" class="space-y-2 mb-4"></div>
-                            
-                            <div id="selectedSummary" class="bg-orange-100 rounded-lg p-3 mb-4 text-sm hidden"></div>
-                            
-                            <button onclick="logCrewTime()" class="w-full px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">
-                                ⏰ Log Time for Selected Workers
-                            </button>
-                        </div>
+        <!-- Dashboard Screen -->
+        <div id="screenDashboard" class="hidden">
+            <div class="p-4">
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <div class="text-xs text-gray-600 mb-1">Total Budget</div>
+                        <div class="text-2xl font-bold text-blue-700" id="dashTotalBudget">0h</div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-4">
+                        <div class="text-xs text-gray-600 mb-1">Hours Used</div>
+                        <div class="text-2xl font-bold text-orange-700" id="dashUsedHours">0h</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <div class="text-xs text-gray-600 mb-1">Available</div>
+                        <div class="text-2xl font-bold text-green-700" id="dashAvailable">0h</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <div class="text-xs text-gray-600 mb-1">Progress</div>
+                        <div class="text-2xl font-bold text-purple-700" id="dashProgress">0%</div>
                     </div>
                 </div>
+                
+                <h3 class="font-semibold mb-3">Active Tasks</h3>
+                <div id="dashTasksList" class="space-y-2"></div>
+            </div>
+        </div>
 
-                <!-- Tasks Management View -->
-                <div id="viewTasks" class="hidden">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold">Task Status Management</h2>
-                        <button onclick="toggleShowClosed()" id="btnShowClosed" class="px-4 py-2 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300">
-                            👁️ Showing Open Only
-                        </button>
-                    </div>
-
-                    <div class="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
-                        <p class="text-sm text-blue-900">
-                            <strong>Tip:</strong> Click status badges to open/close tasks. Closed tasks won't appear in crew time entry. Reopen tasks when rework is needed.
-                        </p>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full bg-white rounded-lg overflow-hidden">
-                            <thead>
-                                <tr class="bg-gray-100 border-b border-gray-200">
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Group → Activity</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Location</th>
-                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Budget</th>
-                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Used</th>
-                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Available</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Progress</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Detail Tracking</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tasksTableBody"></tbody>
-                        </table>
-                    </div>
+        <!-- Timesheet Screen -->
+        <div id="screenTimesheet" class="hidden">
+            <div class="p-4">
+                <input type="date" id="selectedDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 btn-touch text-base">
+                
+                <!-- Step: Select Task -->
+                <div id="stepSelectTask">
+                    <div id="tasksList"></div>
                 </div>
 
-                <!-- Today's Summary -->
-                <div id="todaysSummary" class="mt-6 bg-gray-50 rounded-lg p-4 hidden">
-                    <h3 class="font-semibold mb-3">Today's Logged Hours (<span id="summaryDate"></span>)</h3>
-                    <div id="entriesList" class="space-y-2 mb-4"></div>
-                    <div id="workerTotals" class="mt-4 pt-4 border-t border-gray-300"></div>
-                    <div class="mt-3 pt-3 border-t border-gray-300">
-                        <div class="flex justify-between font-semibold">
-                            <span>Total Hours Today:</span>
-                            <span class="text-orange-600" id="totalHoursToday">0h</span>
-                        </div>
-                    </div>
+                <!-- Step: Select Detail -->
+                <div id="stepSelectDetail" class="hidden">
+                    <button onclick="backToTaskSelection()" class="mb-4 text-orange-600 font-medium btn-touch">← Back</button>
+                    <div id="taskContext" class="bg-orange-50 rounded-lg p-4 mb-4 border border-orange-300"></div>
+                    <div id="detailsList"></div>
                 </div>
+
+                <!-- Step: Assign Workers -->
+                <div id="stepAssignWorkers" class="hidden">
+                    <button onclick="backToPreviousStep()" class="mb-4 text-orange-600 font-medium btn-touch">← Back</button>
+                    <div id="taskContextFull" class="bg-orange-50 rounded-lg p-4 mb-4 border border-orange-300"></div>
+                    
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold">Select Workers</h3>
+                        <button onclick="toggleAllWorkers()" class="text-sm text-orange-600 font-medium btn-touch">Select All</button>
+                    </div>
+                    
+                    <div id="workersList" class="space-y-2 mb-4"></div>
+                    <div id="selectedSummary" class="bg-orange-100 rounded-lg p-3 mb-4 text-sm hidden"></div>
+                    
+                    <button onclick="logCrewTime()" class="w-full px-4 py-4 bg-orange-600 text-white rounded-lg font-semibold btn-touch active:bg-orange-700">
+                        Log Time
+                    </button>
+                </div>
+            </div>
+
+            <!-- Today's Summary -->
+            <div id="todaysSummary" class="hidden bg-white border-t-4 border-gray-200 p-4">
+                <h3 class="font-semibold mb-3">Today (<span id="summaryDate"></span>)</h3>
+                <div id="entriesList" class="space-y-2 mb-3"></div>
+                <div class="pt-3 border-t border-gray-300 flex justify-between font-semibold">
+                    <span>Total:</span>
+                    <span class="text-orange-600" id="totalHoursToday">0h</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Management Screen -->
+        <div id="screenTasks" class="hidden">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <button onclick="toggleShowClosed()" id="btnShowClosed" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm font-medium btn-touch">
+                        Show Open Only
+                    </button>
+                </div>
+                
+                <div id="tasksListManage" class="space-y-3"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Data
         let tasks = [
-            { id: 't1', groupName: 'Concrete', activityName: 'Foundation Pour', location: 'Foundation Area', budgetHours: 140, usedHours: 140, estimatedCompletion: 1.0, trackByDetail: false, availableDetails: ['Footings', 'Grade Beams', 'Piers'], status: 'closed' },
-            { id: 't2', groupName: 'Drywall', activityName: 'Framing', location: '1st & 2nd Floor', budgetHours: 375, usedHours: 280, estimatedCompletion: 0.75, trackByDetail: true, availableDetails: ['Nichos', 'Ceilings', 'Walls'], status: 'open' },
-            { id: 't3', groupName: 'Drywall', activityName: 'Board Installation', location: '1st & 2nd Floor', budgetHours: 280, usedHours: 120, estimatedCompletion: 0.45, trackByDetail: true, availableDetails: ['Level 5 Finish', 'Standard Finish', 'Moisture Resistant'], status: 'open' },
-            { id: 't4', groupName: 'Drywall', activityName: 'Plaster & Finish', location: '1st & 2nd Floor', budgetHours: 220, usedHours: 0, estimatedCompletion: 0, trackByDetail: false, availableDetails: [], status: 'open' },
-            { id: 't5', groupName: 'MEP', activityName: 'Electrical Rough-In', location: 'All Floors', budgetHours: 160, usedHours: 145, estimatedCompletion: 0.95, trackByDetail: true, availableDetails: ['Conduit', 'Junction Boxes', 'Panel Install'], status: 'open' },
-            { id: 't6', groupName: 'MEP', activityName: 'Plumbing Rough-In', location: 'All Floors', budgetHours: 140, usedHours: 140, estimatedCompletion: 1.0, trackByDetail: false, availableDetails: ['Supply Lines', 'Drain Lines', 'Vents'], status: 'closed' }
+            { id: 't1', groupName: 'Concrete', activityName: 'Foundation Pour', location: 'Foundation Area', budgetHours: 140, usedHours: 140, estimatedCompletion: 1.0, trackByDetail: false, availableDetails: ['Footings', 'Grade Beams', 'Piers'], status: 'closed', projectId: 'proj1' },
+            { id: 't2', groupName: 'Drywall', activityName: 'Framing', location: '1st & 2nd Floor', budgetHours: 375, usedHours: 280, estimatedCompletion: 0.75, trackByDetail: true, availableDetails: ['Nichos', 'Ceilings', 'Walls'], status: 'open', projectId: 'proj1' },
+            { id: 't3', groupName: 'Drywall', activityName: 'Board Installation', location: '1st & 2nd Floor', budgetHours: 280, usedHours: 120, estimatedCompletion: 0.45, trackByDetail: true, availableDetails: ['Level 5 Finish', 'Standard Finish', 'Moisture Resistant'], status: 'open', projectId: 'proj1' },
+            { id: 't4', groupName: 'Drywall', activityName: 'Plaster & Finish', location: '1st & 2nd Floor', budgetHours: 220, usedHours: 0, estimatedCompletion: 0, trackByDetail: false, availableDetails: [], status: 'open', projectId: 'proj1' },
+            { id: 't5', groupName: 'MEP', activityName: 'Electrical Rough-In', location: 'All Floors', budgetHours: 160, usedHours: 145, estimatedCompletion: 0.95, trackByDetail: true, availableDetails: ['Conduit', 'Junction Boxes', 'Panel Install'], status: 'open', projectId: 'proj1' },
+            { id: 't6', groupName: 'MEP', activityName: 'Plumbing Rough-In', location: 'All Floors', budgetHours: 140, usedHours: 140, estimatedCompletion: 1.0, trackByDetail: false, availableDetails: [], status: 'closed', projectId: 'proj1' },
+            { id: 't7', groupName: 'Drywall', activityName: 'Framing', location: 'All Floors', budgetHours: 200, usedHours: 15, estimatedCompletion: 0.08, trackByDetail: true, availableDetails: ['Nichos', 'Ceilings', 'Walls'], status: 'open', projectId: 'proj2' }
         ];
 
         const workers = [
@@ -159,45 +187,73 @@
         ];
 
         let entries = [];
-        let currentView = 'timesheet';
+        let currentProjectId = null;
+        let currentProjectName = null;
         let showClosedTasks = false;
         let selectedTask = null;
         let selectedDetail = null;
         let selectedWorkers = [];
         let workerHours = {};
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('selectedDate').valueAsDate = new Date();
-            showView('timesheet');
+            showScreen('selectProject');
         });
 
-        function showView(view) {
-            currentView = view;
-            document.getElementById('viewTimesheet').classList.toggle('hidden', view !== 'timesheet');
-            document.getElementById('viewTasks').classList.toggle('hidden', view !== 'tasks');
-            
-            document.getElementById('btnTimesheet').className = view === 'timesheet' 
-                ? 'flex-1 py-3 px-4 rounded-lg font-medium transition bg-white text-orange-600 shadow'
-                : 'flex-1 py-3 px-4 rounded-lg font-medium transition text-gray-600 hover:text-gray-900';
-            
-            document.getElementById('btnTasks').className = view === 'tasks'
-                ? 'flex-1 py-3 px-4 rounded-lg font-medium transition bg-white text-blue-600 shadow'
-                : 'flex-1 py-3 px-4 rounded-lg font-medium transition text-gray-600 hover:text-gray-900';
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('menuOverlay');
+            menu.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
 
-            if (view === 'timesheet') {
-                renderTasksList();
-            } else {
-                renderTasksTable();
+        function closeMenu() {
+            document.getElementById('sideMenu').classList.add('-translate-x-full');
+            document.getElementById('menuOverlay').classList.add('hidden');
+        }
+
+        function selectProject(name, id) {
+            currentProjectName = name;
+            currentProjectId = id;
+            document.getElementById('currentProject').textContent = name;
+            showScreen('timesheet');
+            closeMenu();
+        }
+
+        function showScreen(screen) {
+            if (screen !== 'selectProject' && !currentProjectId) {
+                showScreen('selectProject');
+                return;
             }
+
+            ['screenSelectProject', 'screenDashboard', 'screenTimesheet', 'screenTasks'].forEach(s => {
+                document.getElementById(s).classList.add('hidden');
+            });
+            
+            document.getElementById('screen' + screen.charAt(0).toUpperCase() + screen.slice(1)).classList.remove('hidden');
+            
+            if (screen === 'timesheet') {
+                showStep('selectTask');
+                renderTasksList();
+            } else if (screen === 'tasks') {
+                renderTasksManage();
+            } else if (screen === 'dashboard') {
+                renderDashboard();
+            }
+            
             updateSummary();
+            closeMenu();
+        }
+
+        function getProjectTasks() {
+            return tasks.filter(t => t.projectId === currentProjectId);
         }
 
         function getTasksWithSaldo() {
             const organized = {};
-            const openTasks = tasks.filter(t => t.status === 'open');
+            const projectTasks = getProjectTasks().filter(t => t.status === 'open');
             
-            openTasks.forEach(task => {
+            projectTasks.forEach(task => {
                 const usedTotal = task.usedHours + calculateTaskHours(task.id);
                 const available = task.budgetHours - usedTotal;
                 
@@ -220,41 +276,65 @@
             return entries.filter(e => e.taskId === taskId).reduce((sum, e) => sum + e.hours, 0);
         }
 
+        function renderDashboard() {
+            const projectTasks = getProjectTasks();
+            const totalBudget = projectTasks.reduce((sum, t) => sum + t.budgetHours, 0);
+            const totalUsed = projectTasks.reduce((sum, t) => sum + t.usedHours + calculateTaskHours(t.id), 0);
+            const totalAvailable = totalBudget - totalUsed;
+            const avgProgress = projectTasks.reduce((sum, t) => sum + t.estimatedCompletion, 0) / projectTasks.length;
+
+            document.getElementById('dashTotalBudget').textContent = totalBudget + 'h';
+            document.getElementById('dashUsedHours').textContent = totalUsed.toFixed(0) + 'h';
+            document.getElementById('dashAvailable').textContent = totalAvailable.toFixed(0) + 'h';
+            document.getElementById('dashProgress').textContent = (avgProgress * 100).toFixed(0) + '%';
+
+            const activeTasks = projectTasks.filter(t => t.status === 'open');
+            document.getElementById('dashTasksList').innerHTML = activeTasks.map(task => {
+                const used = task.usedHours + calculateTaskHours(task.id);
+                const progress = (used / task.budgetHours * 100).toFixed(0);
+                return `
+                    <div class="bg-white rounded-lg p-3 border border-gray-200">
+                        <div class="font-medium text-sm">${task.groupName} → ${task.activityName}</div>
+                        <div class="text-xs text-gray-600 mt-1">${task.location}</div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${progress}%"></div>
+                            </div>
+                            <span class="text-xs font-medium">${progress}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function renderTasksList() {
             const groups = getTasksWithSaldo();
             const container = document.getElementById('tasksList');
             
             if (groups.length === 0) {
-                container.innerHTML = '<div class="text-center py-8 text-gray-600"><p>No open tasks with available hours</p><button onclick="showView(\'tasks\')" class="mt-4 text-blue-600 hover:text-blue-800 underline">Go to Task Management to open tasks</button></div>';
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-600">
+                        <p class="mb-4">No open tasks with available hours</p>
+                        <button onclick="showScreen('tasks')" class="text-blue-600 underline btn-touch">Manage Tasks</button>
+                    </div>
+                `;
                 return;
             }
             
             container.innerHTML = groups.map(group => `
-                <div class="bg-white rounded-lg border-2 border-gray-200 overflow-hidden mb-4">
-                    <div class="bg-gray-100 px-4 py-2 border-b border-gray-200">
-                        <div class="font-semibold text-gray-900">${group.groupName}</div>
-                    </div>
-                    <div class="divide-y divide-gray-200">
-                        ${group.tasks.map(task => `
-                            <button onclick='selectTask(${JSON.stringify(task).replace(/'/g, "&apos;")})' class="w-full bg-white hover:bg-orange-50 transition text-left p-4 hover:border-l-4 hover:border-orange-400">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="font-medium text-gray-900">${task.activityName}</span>
-                                            ${task.trackByDetail ? '<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">DETAIL REQUIRED</span>' : ''}
-                                        </div>
-                                        <div class="text-sm text-gray-600 mb-2">📍 ${task.location}</div>
-                                        <div class="grid grid-cols-3 gap-2 text-xs">
-                                            <div><span class="text-gray-600">Budget:</span> <span class="font-medium ml-1">${task.budgetHours}h</span></div>
-                                            <div><span class="text-gray-600">Available:</span> <span class="font-medium ml-1 text-green-700">${task.available}h</span></div>
-                                            <div><span class="text-gray-600">Progress:</span> <span class="font-medium ml-1">${(task.estimatedCompletion * 100).toFixed(0)}%</span></div>
-                                        </div>
-                                    </div>
-                                    <span class="text-gray-400 mt-1">→</span>
-                                </div>
-                            </button>
-                        `).join('')}
-                    </div>
+                <div class="mb-4">
+                    <div class="text-xs font-semibold text-gray-500 mb-2 px-2">${group.groupName}</div>
+                    ${group.tasks.map(task => `
+                        <button onclick='selectTask(${JSON.stringify(task).replace(/'/g, "&apos;")})' class="w-full bg-white rounded-lg p-4 shadow border border-gray-200 active:border-orange-500 text-left mb-2 btn-touch">
+                            <div class="font-semibold text-base mb-1">${task.activityName}</div>
+                            ${task.trackByDetail ? '<div class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded inline-block mb-2">Detail Required</div>' : ''}
+                            <div class="text-sm text-gray-600 mb-2">📍 ${task.location}</div>
+                            <div class="flex gap-4 text-xs">
+                                <div><span class="text-gray-500">Available:</span> <span class="font-semibold text-green-700">${task.available}h</span></div>
+                                <div><span class="text-gray-500">Progress:</span> <span class="font-semibold">${(task.estimatedCompletion * 100).toFixed(0)}%</span></div>
+                            </div>
+                        </button>
+                    `).join('')}
                 </div>
             `).join('');
         }
@@ -276,14 +356,13 @@
 
         function renderDetails() {
             document.getElementById('taskContext').innerHTML = `
-                <div class="text-sm text-gray-600 mb-1">${selectedTask.groupName} → ${selectedTask.activityName}</div>
-                <div class="font-semibold text-gray-900">📍 ${selectedTask.location}</div>
+                <div class="text-sm font-medium mb-1">${selectedTask.groupName} → ${selectedTask.activityName}</div>
+                <div class="text-xs text-gray-600">📍 ${selectedTask.location}</div>
             `;
             
             document.getElementById('detailsList').innerHTML = selectedTask.availableDetails.map(detail => `
-                <button onclick="selectDetail('${detail}')" class="w-full bg-white rounded-lg p-4 border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50 transition text-left flex items-center justify-between mb-2">
-                    <span class="font-medium text-gray-900">${detail}</span>
-                    <span class="text-gray-400">→</span>
+                <button onclick="selectDetail('${detail}')" class="w-full bg-white rounded-lg p-4 shadow border border-gray-200 active:border-orange-500 text-left mb-2 btn-touch">
+                    <span class="font-medium text-base">${detail}</span>
                 </button>
             `).join('');
         }
@@ -296,14 +375,13 @@
 
         function renderWorkers() {
             document.getElementById('taskContextFull').innerHTML = `
-                <div class="text-sm text-gray-600 mb-1">
+                <div class="text-sm font-medium mb-1">
                     ${selectedTask.groupName} → ${selectedTask.activityName}
                     ${selectedDetail ? ` → ${selectedDetail}` : ''}
                 </div>
-                <div class="font-semibold text-gray-900">📍 ${selectedTask.location}</div>
+                <div class="text-xs text-gray-600">📍 ${selectedTask.location}</div>
             `;
             
-            const selectedDate = document.getElementById('selectedDate').value;
             const container = document.getElementById('workersList');
             
             container.innerHTML = workers.map(worker => {
@@ -313,23 +391,22 @@
                 const totalIfAdded = hoursToday + hours;
                 
                 return `
-                    <div class="rounded-lg p-4 border-2 transition ${isSelected ? 'bg-orange-100 border-orange-500' : 'bg-white border-gray-200'}">
+                    <div class="rounded-lg p-4 border-2 ${isSelected ? 'bg-orange-50 border-orange-500' : 'bg-white border-gray-200'} btn-touch">
                         <div class="flex items-center gap-3">
-                            <button onclick="toggleWorker('${worker.id}')" class="flex-shrink-0">
+                            <button onclick="toggleWorker('${worker.id}')" class="text-2xl flex-shrink-0">
                                 ${isSelected ? '☑️' : '⬜'}
                             </button>
                             <div class="flex-1">
-                                <div class="font-medium text-gray-900">${worker.name}</div>
+                                <div class="font-medium">${worker.name}</div>
                                 <div class="text-sm text-gray-600">${worker.trade}</div>
                                 ${hoursToday > 0 ? `
                                     <div class="text-xs text-blue-700 mt-1 font-medium">
-                                        Already logged: ${hoursToday}h today
-                                        ${isSelected ? ` → Total will be: ${totalIfAdded}h` : ''}
+                                        Today: ${hoursToday}h${isSelected ? ` → ${totalIfAdded}h` : ''}
                                     </div>
                                 ` : ''}
                             </div>
                             ${isSelected ? `
-                                <input type="number" step="0.5" value="${hours}" onchange="updateWorkerHours('${worker.id}', this.value)" class="w-16 px-2 py-1 border border-orange-300 rounded text-center">
+                                <input type="number" step="0.5" value="${hours}" onchange="updateWorkerHours('${worker.id}', this.value)" class="w-16 px-2 py-2 border-2 border-orange-300 rounded text-center text-base font-semibold">
                             ` : ''}
                         </div>
                     </div>
@@ -370,7 +447,7 @@
             const summary = document.getElementById('selectedSummary');
             if (selectedWorkers.length > 0) {
                 const totalHours = selectedWorkers.reduce((sum, id) => sum + (workerHours[id] || 8), 0);
-                summary.innerHTML = `<span class="font-medium">${selectedWorkers.length} workers selected</span><span class="text-gray-700 ml-2">× total = ${totalHours} hours</span>`;
+                summary.innerHTML = `<span class="font-medium">${selectedWorkers.length} workers</span><span class="text-gray-700 ml-2">× ${totalHours}h total</span>`;
                 summary.classList.remove('hidden');
             } else {
                 summary.classList.add('hidden');
@@ -404,8 +481,7 @@
                     task: selectedTask.activityName,
                     detailName: selectedDetail,
                     groupName: selectedTask.groupName,
-                    taskId: selectedTask.id,
-                    foreman: 'Roberto Sanchez'
+                    taskId: selectedTask.id
                 });
             });
             
@@ -443,31 +519,37 @@
             }
         }
 
-        function renderTasksTable() {
-            const filtered = showClosedTasks ? tasks : tasks.filter(t => t.status === 'open');
-            const tbody = document.getElementById('tasksTableBody');
+        function renderTasksManage() {
+            const projectTasks = getProjectTasks();
+            const filtered = showClosedTasks ? projectTasks : projectTasks.filter(t => t.status === 'open');
+            const container = document.getElementById('tasksListManage');
             
-            tbody.innerHTML = filtered.map(task => {
-                const available = task.budgetHours - task.usedHours;
+            container.innerHTML = filtered.map(task => {
+                const used = task.usedHours + calculateTaskHours(task.id);
+                const available = task.budgetHours - used;
                 return `
-                    <tr class="border-b border-gray-200 hover:bg-gray-50 ${task.status === 'closed' ? 'bg-gray-50 opacity-60' : ''}">
-                        <td class="px-4 py-3">
-                            <button onclick="toggleTaskStatus('${task.id}')" class="text-xs px-3 py-1.5 rounded-full font-semibold ${task.status === 'open' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}">
-                                ${task.status === 'open' ? 'OPEN' : 'CLOSED'}
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex-1">
+                                <div class="font-semibold">${task.groupName} → ${task.activityName}</div>
+                                <div class="text-sm text-gray-600 mt-1">${task.location}</div>
+                            </div>
+                            <button onclick="toggleTaskStatus('${task.id}')" class="text-xs px-3 py-1.5 rounded-full font-semibold ${task.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'} btn-touch">
+                                ${task.status.toUpperCase()}
                             </button>
-                        </td>
-                        <td class="px-4 py-3"><div class="font-medium text-gray-900">${task.groupName} → ${task.activityName}</div></td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${task.location}</td>
-                        <td class="px-4 py-3 text-sm text-right text-gray-700">${task.budgetHours}h</td>
-                        <td class="px-4 py-3 text-sm text-right text-orange-700">${task.usedHours}h</td>
-                        <td class="px-4 py-3 text-sm text-right font-medium ${available > 0 ? 'text-green-700' : 'text-red-700'}">${available}h</td>
-                        <td class="px-4 py-3 text-center"><div class="inline-block bg-blue-100 px-3 py-1 rounded-full"><span class="text-sm font-semibold text-blue-700">${(task.estimatedProgress * 100).toFixed(0)}%</span></div></td>
-                        <td class="px-4 py-3 text-center">
-                            <button onclick="toggleTrackByDetail('${task.id}')" ${task.status === 'closed' ? 'disabled' : ''} class="text-xs font-medium px-3 py-1.5 rounded-full ${task.trackByDetail ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} ${task.status === 'closed' ? 'opacity-50 cursor-not-allowed' : ''}">
-                                ${task.trackByDetail ? 'ON' : 'OFF'}
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs mb-2">
+                            <div><span class="text-gray-500">Budget:</span> <span class="font-semibold">${task.budgetHours}h</span></div>
+                            <div><span class="text-gray-500">Used:</span> <span class="font-semibold text-orange-700">${used}h</span></div>
+                            <div><span class="text-gray-500">Available:</span> <span class="font-semibold ${available > 0 ? 'text-green-700' : 'text-red-700'}">${available}h</span></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs"><span class="text-gray-500">Progress:</span> <span class="font-semibold">${(task.estimatedCompletion * 100).toFixed(0)}%</span></div>
+                            <button onclick="toggleTrackByDetail('${task.id}')" ${task.status === 'closed' ? 'disabled' : ''} class="text-xs px-3 py-1 rounded-full font-medium ${task.trackByDetail ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'} btn-touch">
+                                Detail ${task.trackByDetail ? 'ON' : 'OFF'}
                             </button>
-                        </td>
-                    </tr>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
@@ -475,22 +557,21 @@
         function toggleTaskStatus(taskId) {
             const task = tasks.find(t => t.id === taskId);
             task.status = task.status === 'open' ? 'closed' : 'open';
-            renderTasksTable();
-            if (currentView === 'timesheet') renderTasksList();
+            renderTasksManage();
         }
 
         function toggleTrackByDetail(taskId) {
             const task = tasks.find(t => t.id === taskId);
             if (task.status !== 'closed') {
                 task.trackByDetail = !task.trackByDetail;
-                renderTasksTable();
+                renderTasksManage();
             }
         }
 
         function toggleShowClosed() {
             showClosedTasks = !showClosedTasks;
-            document.getElementById('btnShowClosed').innerHTML = showClosedTasks ? '👁️ Showing All' : '🙈 Showing Open Only';
-            renderTasksTable();
+            document.getElementById('btnShowClosed').textContent = showClosedTasks ? 'Showing All' : 'Show Open Only';
+            renderTasksManage();
         }
 
         function updateSummary() {
@@ -506,29 +587,16 @@
             document.getElementById('summaryDate').textContent = selectedDate;
             
             document.getElementById('entriesList').innerHTML = todayEntries.map(entry => `
-                <div class="bg-white rounded p-3 text-sm border border-gray-200">
+                <div class="bg-gray-50 rounded p-3 text-sm">
                     <div class="flex justify-between items-start">
-                        <div>
-                            <span class="font-medium">${entry.employee}</span>
-                            <div class="text-gray-600 text-xs mt-1">${entry.groupName} → ${entry.task}${entry.detailName ? ` → ${entry.detailName}` : ''}</div>
-                            <div class="text-gray-500 text-xs mt-1">${entry.location}</div>
+                        <div class="flex-1">
+                            <div class="font-medium">${entry.employee}</div>
+                            <div class="text-xs text-gray-600 mt-1">${entry.groupName} → ${entry.task}${entry.detailName ? ` → ${entry.detailName}` : ''}</div>
                         </div>
-                        <span class="font-semibold text-orange-600">${entry.hours}h</span>
+                        <span class="font-semibold text-orange-600 text-base">${entry.hours}h</span>
                     </div>
                 </div>
             `).join('');
-            
-            const workerTotalsHtml = workers.map(worker => {
-                const total = getWorkerHoursToday(worker.id);
-                return total > 0 ? `<div class="text-sm"><span class="text-gray-700">${worker.name}:</span><span class="font-semibold text-orange-600 ml-1">${total}h</span></div>` : '';
-            }).filter(Boolean).join('');
-            
-            if (workerTotalsHtml) {
-                document.getElementById('workerTotals').innerHTML = `
-                    <h4 class="text-sm font-semibold mb-2 text-gray-700">Hours by Worker:</h4>
-                    <div class="grid grid-cols-2 gap-2">${workerTotalsHtml}</div>
-                `;
-            }
             
             const totalHours = todayEntries.reduce((sum, e) => sum + e.hours, 0);
             document.getElementById('totalHoursToday').textContent = totalHours + 'h';
